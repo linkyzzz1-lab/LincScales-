@@ -23,10 +23,14 @@ export function verifySessionToken(token: string | undefined) {
   try {
     const secret = process.env.SESSION_SECRET;
     if (!secret || !token) return false;
-    const parts = token.split(".");
-    if (parts.length !== 3 || Number(parts[1]) < Date.now()) return false;
-    const expected = createHmac("sha256", secret).update(`${parts[0]}.${parts[1]}`).digest("hex");
-    return timingSafeEqual(Buffer.from(parts[2]), Buffer.from(expected));
+    const parts = decodeURIComponent(token).split(".");
+    if (parts.length < 3) return false;
+    const expiry = parts.at(-2);
+    const signature = parts.at(-1);
+    if (!expiry || !signature || Number(expiry) < Date.now()) return false;
+    const payload = parts.slice(0, -1).join(".");
+    const expected = createHmac("sha256", secret).update(payload).digest("hex");
+    return signature.length === expected.length && timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
   } catch { return false; }
 }
 
