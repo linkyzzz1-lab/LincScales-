@@ -1,0 +1,6 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { verifyPassword } from "@/lib/password";
+import { checkRateLimit, createSessionToken, getClientKey } from "@/lib/security";
+const schema = z.object({ email: z.string().email(), password: z.string().min(1).max(200) });
+export async function POST(request: Request) { if (!checkRateLimit(`login:${getClientKey(request)}`, 8)) return NextResponse.json({ error: "Too many login attempts. Try again later." }, { status: 429 }); try { const body = schema.parse(await request.json()); if (body.email.toLowerCase() !== process.env.ADMIN_EMAIL?.toLowerCase() || !verifyPassword(body.password, process.env.ADMIN_PASSWORD_HASH)) return NextResponse.json({ error: "Invalid credentials." }, { status: 401 }); const response = NextResponse.json({ ok: true }); response.cookies.set("lincscales_admin", createSessionToken(body.email), { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", maxAge: 8 * 60 * 60, path: "/" }); return response; } catch { return NextResponse.json({ error: "Invalid login request." }, { status: 400 }); } }

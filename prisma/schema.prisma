@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum PackageCategory {
+  META_ADS
+  AI_CHATBOT
+}
+
+enum OrderStatus {
+  PENDING
+  REVIEWING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum BillingFrequency {
+  ONE_TIME
+  MONTHLY
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  role         String   @default("ADMIN")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Customer {
+  id           String                 @id @default(cuid())
+  name         String
+  email        String                 @unique
+  company      String?
+  phone        String?
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  orders       Order[]
+  planRequests CustomPlanRequest[]
+  chatbots     ChatbotConfiguration[]
+}
+
+model ServicePackage {
+  id          String          @id @default(cuid())
+  slug        String          @unique
+  name        String
+  category    PackageCategory
+  priceCents  Int
+  frequency   BillingFrequency
+  description String
+  features    String
+  active      Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  orderItems  OrderItem[]
+}
+
+model Order {
+  id              String        @id @default(cuid())
+  reference       String        @unique
+  customerId      String
+  status          OrderStatus   @default(PENDING)
+  estimatedCents  Int
+  billingSummary  String
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  customer        Customer      @relation(fields: [customerId], references: [id])
+  items           OrderItem[]
+}
+
+model OrderItem {
+  id          String         @id @default(cuid())
+  orderId     String
+  packageId   String
+  quantity    Int            @default(1)
+  priceCents  Int
+  order       Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  package     ServicePackage @relation(fields: [packageId], references: [id])
+}
+
+model CustomPlanRequest {
+  id              String   @id @default(cuid())
+  customerId      String
+  businessType    String
+  goals           String
+  budget          String
+  desiredServices String
+  createdAt       DateTime @default(now())
+  customer        Customer @relation(fields: [customerId], references: [id])
+}
+
+model ChatbotConfiguration {
+  id          String   @id @default(cuid())
+  customerId  String
+  name        String
+  plan        String
+  status      String   @default("DRAFT")
+  knowledge   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  customer    Customer @relation(fields: [customerId], references: [id])
+}

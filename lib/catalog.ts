@@ -1,0 +1,10 @@
+export const FALLBACK_PACKAGES = [
+  { slug: "meta-launch", name: "Launch", category: "META_ADS", priceCents: 14900, frequency: "ONE_TIME", description: "A focused campaign setup for your first confident step into paid growth.", features: ["Account & pixel audit", "Campaign architecture", "Creative direction", "30-day launch map"] },
+  { slug: "meta-growth", name: "Growth", category: "META_ADS", priceCents: 29900, frequency: "MONTHLY", description: "A steady performance engine for teams ready to turn attention into action.", features: ["Everything in Launch", "Weekly optimization", "Audience testing", "Monthly performance report"] },
+  { slug: "meta-scale", name: "Scale", category: "META_ADS", priceCents: 49900, frequency: "MONTHLY", description: "Full-funnel momentum with the strategy and rigor to compound results.", features: ["Everything in Growth", "Multi-channel retargeting", "Creative testing system", "Priority strategy calls"] },
+  { slug: "ai-basic", name: "Basic", category: "AI_CHATBOT", priceCents: 2900, frequency: "MONTHLY", description: "One sharp AI assistant for the questions your customers ask most.", features: ["1 assistant", "Guided setup", "Knowledge base"] },
+  { slug: "ai-pro", name: "Pro", category: "AI_CHATBOT", priceCents: 7900, frequency: "MONTHLY", description: "A smarter support layer that qualifies, routes, and converts around the clock.", features: ["3 assistants", "Conversation insights", "Handoff workflows"] },
+  { slug: "ai-elite", name: "Elite", category: "AI_CHATBOT", priceCents: 14900, frequency: "MONTHLY", description: "A custom AI team trained on your business, brand voice, and workflows.", features: ["Unlimited assistants", "Custom workflows", "Priority support"] },
+];
+
+export function formatPrice(cents: number) { return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(cents / 100); }
